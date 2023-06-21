@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Form Example</title>
+  <style>
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>Form Example</h1>
+  <form action="/submit" method="post">
+    <label for="name">Name:</label>
+    <input type="text" autocomplete="name" id="name" name="name" required>
+    <br>
+    <label for="email">Email:</label>
+    <input type="email" autocomplete="email" id="email" name="email" required>
+    <br>
+    <button type="submit">Submit</button>
+  </form>
+  <div id="validation-messages"></div>
+
+  <script>
+    function validateEmail(email) {
+      const separator = email.indexOf("@");
+
+      const localPart = email.substring(0, separator);
+      const domainPart = email.substring(separator, email.length);
+      localPart.trim();
+
+      const messages = [];
+
+      if (
+        localPart.length === 0 ||
+        localPart.length >= 63 ||
+        localPart.charAt(0) === "." ||
+        localPart.charAt(localPart.length - 1) === "." ||
+        localPart.includes("..")
+      ) {
+        if (localPart.length === 0) {
+          messages.push("Local part cannot have a length of zero.");
+        }
+
+        if (localPart.length >= 63) {
+          messages.push("Local part cannot have a length greater than 63.");
+        }
+
+        if (localPart.charAt(0) === "." || localPart.charAt(localPart.length - 1) === ".") {
+          messages.push("Local part cannot start or end with a period.");
+        }
+
+        if (localPart.includes("..")) {
+          messages.push("Local part cannot contain consecutive periods.");
+        }
+      }
+
+      if (
+        domainPart.length === 0 ||
+        domainPart.length >= 255 ||
+        domainPart.charAt(0) === "." ||
+        domainPart.includes("@@")
+      ) {
+        if (domainPart.length === 0) {
+          messages.push("Domain part cannot have a length of zero.");
+        }
+
+        if (domainPart.length >= 255) {
+          messages.push("Domain part cannot have a length greater than 255.");
+        }
+
+        if (domainPart.charAt(0) === ".") {
+          messages.push("Domain part cannot start with a period.");
+        }
+
+        if (domainPart.includes("@@")) {
+          messages.push("Domain part cannot contain consecutive at signs.");
+        }
+      }
+
+      const domainParts = domainPart.split(".");
+
+      if (domainParts.length < 2) {
+        messages.push("Domain must have at least two parts separated by a period.");
+      }
+
+      return messages;
+    }
+
+    function displayValidationMessages(messages) {
+      const messagesContainer = document.getElementById("validation-messages");
+      messagesContainer.innerHTML = "";
+
+      if (messages.length > 0) {
+        const ul = document.createElement("ul");
+        messages.forEach((message) => {
+          const li = document.createElement("li");
+          li.textContent = message;
+          ul.appendChild(li);
+        });
+        messagesContainer.appendChild(ul);
+      }
+    }
+
+    const emailInput = document.getElementById("email");
+    const form = document.querySelector("form");
+
+    form.addEventListener("submit", (event) => {
+      const email = emailInput.value;
+      const messages = validateEmail(email);
+
+      if (messages.length > 0) {
+        event.preventDefault();
+        displayValidationMessages(messages);
+      }
+    });
+  </script>
+</body>
+</html>
